@@ -34,6 +34,7 @@ namespace RocketTrajectoyData
         public float deltav { get; set; }
         public float dalt { get; set; }
         public float ddrange { get; set; }
+        public float? actualdownrange { get; set; }
     }
 
 }

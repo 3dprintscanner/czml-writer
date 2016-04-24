@@ -52,6 +52,11 @@ function JoinAltitudeVelocityDownrange(altitudeData, velocityData,downRangeData)
 		currentValue.deltav = deltaVelocity;
 		currentValue.dalt = currentValue.altitude - previousValue.altitude;
 		currentValue.ddrange = currentValue.downrange - previousValue.downrange;
+		currentValue.actualdownrange = if(currentValue.downrange - previousValue.downrange > 0){
+			return currentValue.downrange
+		}else{
+			return ((previousValue.downrange - currentValue.downrange) + previousValue.downrange);
+		}
 		return currentValue;
 	});
 
