@@ -59,13 +59,13 @@ namespace ExampleCesiumLanguageServer
                 {
                     var cartesianVelocitySet = GenerateCartesianVelocitySet(stage);
 
-
+                    var clr = GetNextColour();
                     var count = 0;
                     foreach (var positions in cartesianVelocitySet.Item2)
                     {
                         count++;
 
-                        if (count % 50 == 0)
+                        if (count % 100 == 0)
                         {
                             using (var packet = cesiumWriter.OpenPacket(output))
                             {
@@ -129,6 +129,15 @@ namespace ExampleCesiumLanguageServer
 
                 output.WriteEndSequence();
             }
+        }
+
+        private Color GetNextColour()
+        {
+            var colours = new Color[3]{Color.Aqua, Color.Blue, Color.Yellow};
+            Random random = new Random();
+
+            Color col = colours[random.Next(2)];
+            return col;
         }
 
         /// <summary>
@@ -239,7 +248,7 @@ namespace ExampleCesiumLanguageServer
 
             // add downrange to the vector
 
-            var drVector =  altVector.Add(new Cartesian((arg.actualdownrange.Value*1000.0*unitVector.X) + baseCartesian.X, 0, 0));
+            var drVector =  altVector.Add(new Cartesian((arg.actualdownrange.Value*1000.0*unitVector.X), 0, 0));
         
             var altitude = (arg.altitude*1000.0 * (unitVector.Z)) + baseCartesian.Z;
             var downRange = (arg.actualdownrange*1000.0* unitVector.X) + baseCartesian.X;
