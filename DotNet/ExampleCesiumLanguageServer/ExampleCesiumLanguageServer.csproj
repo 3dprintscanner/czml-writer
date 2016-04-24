@@ -38,6 +38,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Geo">
+      <HintPath>..\packages\Geo.0.14.1\lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Geo.dll</HintPath>
+    </Reference>
+    <Reference Include="GeoUtility">
+      <HintPath>..\RocketTrajectoyData\GeoUtility.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,11 +51,21 @@
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CesiumAir\0_Cesium_Air.png" />
+    <Content Include="CesiumAir\1_Cesium_Air_Prop.png" />
+    <Content Include="Models\0_Cesium_Air.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\1_Cesium_Air_Prop.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Global.asax" />
     <Content Include="index.html" />
+    <Content Include="StyleSheet1.css" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BetterInfoHandler.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -57,6 +73,19 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Models\Cesium_Air.dae">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Cesium_Air.glb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Models\Cesium_Air.gltf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CesiumAir\Cesium_Air.dae" />
+    <Content Include="CesiumAir\Cesium_Air.glb" />
+    <Content Include="CesiumAir\Cesium_Air.gltf" />
+    <Content Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -69,6 +98,17 @@
       <Project>{085359f8-cc1d-4561-94c7-0bf067b8e370}</Project>
       <Name>CesiumLanguageWriter</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GeometricComputations\GeometricComputations.csproj">
+      <Project>{1051D815-56BC-4021-AFA1-AC94CA18EBFE}</Project>
+      <Name>GeometricComputations</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RocketTrajectoyData\RocketTrajectoyData.csproj">
+      <Project>{15B990A8-DB2A-4A9B-8DD8-6C346F7DA770}</Project>
+      <Name>RocketTrajectoyData</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_GlobalResources\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

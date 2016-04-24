@@ -1,12 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Web;
 using System.Web.Routing;
 using CesiumLanguageWriter;
+using GeometricComputations;
+using GeoUtility;
+using RocketTrajectoyData;
 
 namespace ExampleCesiumLanguageServer
 {
+    
+    
     /// <summary>
     /// This is a sample handler that uses CesiumLanguageWriter to return CZML in response
     /// to an HTTP request.  In this case it returns a handful of yellow dots that could have
@@ -15,6 +23,14 @@ namespace ExampleCesiumLanguageServer
     /// </summary>
     public class InfoHandler : IHttpHandler, IRouteHandler
     {
+
+        const int EARTH_RADIUS = 6371000;
+        private RocketTrajectoryData rocketData;
+ 
+        // convert the distance of the downrange into a distance from the launch site, at a specific trajectory
+
+        
+        
         /// <summary>
         /// This handles the HTTP request by writing some example CZML into the response.
         /// </summary>
@@ -46,49 +62,86 @@ namespace ExampleCesiumLanguageServer
                 {
                     entity.WriteId("document");
                     entity.WriteVersion("1.0");
+                   
                 }
 
-                // Now we generate some sample points and send them down.
-                for (int y = -3; y <= 3; ++y)
+                using (var entity = cesiumWriter.OpenPacket(output))
                 {
-                    double lat = y * 10.0;
-                    for (int x = -18; x <= 18; ++x)
+                    entity.WriteId("canavitem");
+                    using (var pos = entity.OpenPositionProperty())
                     {
-                        double lon = x * 9.99999999;
 
-                        // Open a new CZML packet for each point.
-                        using (var entity = cesiumWriter.OpenPacket(output))
+                        pos.WriteCartesian(CesiumDataManager.GetBaseCartesian());
+                    }
+                    using (var point = entity.OpenPointProperty())
+                    {
+                        point.WriteColorProperty(Color.Aqua);
+                        point.WritePixelSizeProperty(10.0);
+                    }
+
+                }
+
+                rocketData = new RocketTrajectoryData();
+
+                var entities = rocketData.GetStandardRocketTrajectoryData();
+                
+
+                var cartList = new List<Cartesian>();
+                var dateList = new List<JulianDate>();
+
+                var now = DateTime.Now;
+                
+                for (int i = 0; i < entities.data[2].x.Count; i++)
+                {
+                    var cartesian = CesiumDataManager.GenerateCartesian(entities.data[2].x[i], entities.data[2].y[i]);
+                    cartList.Add(cartesian);
+                    var julDate = new JulianDate(now + TimeSpan.FromSeconds(i*2));
+                    dateList.Add(julDate);
+
+                }
+
+                using (var thisEntity = cesiumWriter.OpenPacket(output))
+                {
+                    thisEntity.WriteId("testpath");
+                    thisEntity.WriteDescriptionProperty("rocket launch path");
+                    using (var position = thisEntity.OpenPositionProperty())
+                    {
+                        position.WriteCartesian(dateList, cartList);
+                        position.WriteReferenceFrame("#referenceitem");
+                    }
+
+                    //using (var model = thisEntity.OpenModelProperty())
+                    //{
+                    //    model.WriteGltfProperty(new Uri("http://localhost:56332/Models/CesiumAir/Cesium_Air.gltf"),CesiumResourceBehavior.Embed);
+                    //}
+
+                    using (var path = thisEntity.OpenPathProperty())
+                    {
+                        using (var material = path.OpenMaterialProperty())
                         {
-                            entity.WriteId("point " + (x * 10) + " " + (y * 10));
-
-                            using (var position = entity.OpenPositionProperty())
+                            using (var outline = material.OpenSolidColorProperty())
                             {
-                                position.WriteCartographicDegrees(new Cartographic(lon, lat, 0.0));
-                            }
-
-                            using (var point = entity.OpenPointProperty())
-                            {
-                                point.WritePixelSizeProperty(10.0);
-                                point.WriteColorProperty(Color.Yellow);
-                            }
-
-                            // Click any dot in Cesium Viewer to read its description.
-                            using (var description = entity.OpenDescriptionProperty())
-                            {
-                                description.WriteString(
-                                    "<table class=\"cesium-infoBox-defaultTable\"><tbody>" +
-                                    "<tr><td>Longitude</td><td>" + lon.ToString("0") + " degrees</td></tr>" +
-                                    "<tr><td>Latitude</td><td>" + lat.ToString("0") + " degrees</td></tr>" +
-                                    "</tbody></table>");
+                                using (var colour = outline.OpenColorProperty())
+                                {
+                                    colour.WriteRgba(Color.DarkSeaGreen);
+                                }
                             }
                         }
+                        path.WriteWidthProperty(8);
+                        path.WriteLeadTimeProperty(10);
+                        path.WriteTrailTimeProperty(1000);
+                        path.WriteResolutionProperty(5);
                     }
                 }
+
+                
 
                 // Close the JSON array that wraps the entire CZML document.
                 output.WriteEndSequence();
             }
         }
+
+       
 
         public bool IsReusable
         {
