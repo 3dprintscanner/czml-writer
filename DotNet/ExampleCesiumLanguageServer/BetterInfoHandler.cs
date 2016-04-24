@@ -53,14 +53,42 @@ namespace ExampleCesiumLanguageServer
 
                 foreach (var stage in entities.stages)
                 {
+                    var cartesianVelocitySet = GenerateCartesianVelocitySet(stage);
 
+
+                    var count = 0;
+                    foreach (var positions in cartesianVelocitySet.Item2)
+                    {
+                        count++;
+
+                        if (count % 100 == 0)
+                        {
+                            using (var packet = cesiumWriter.OpenPacket(output))
+                            {
+                                using (var point = packet.OpenPointProperty())
+                                {
+                                    point.WriteColorProperty(Color.Yellow);
+                                    point.WritePixelSizeProperty(10.0);
+                                }
+                                using (var position = packet.OpenPositionProperty())
+                                {
+
+                                    position.WriteCartesian(positions.Value);
+                                }
+                            }    
+                        }
+                           
+                    }
+                    
+                    
+                    
                     using (var packet = cesiumWriter.OpenPacket(output))
                     {
                         packet.WriteId("RocketLaunch");
                         using (var position = packet.OpenPositionProperty())
                         {
 
-                            var cartesianVelocitySet = GenerateCartesianVelocitySet(stage);
+                            
                             position.WriteCartesianVelocity(cartesianVelocitySet.Item1, cartesianVelocitySet.Item2);
                         }
                         using (var description = packet.OpenDescriptionProperty())
